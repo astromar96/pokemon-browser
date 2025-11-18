@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { usePokemon } from '@/api/usePokemon'
 import { cn } from '@/lib/utils'
 import type { Pokemon, PokemonListItem } from '@/api/pokemon'
 
@@ -21,35 +20,23 @@ function formatPokemonId(id: string | number): string {
   return `#${String(numId).padStart(3, '0')}`
 }
 
-// Get Pokemon image URL
-function getPokemonImage(pokemon: Pokemon | null): string | null {
-  if (!pokemon) return null
-  return (
-    pokemon.sprites.other?.['official-artwork']?.front_default ||
-    pokemon.sprites.front_default ||
-    null
-  )
+// Get Pokemon image URL from ID
+function getPokemonImageUrl(id: string | number | null | undefined): string | null {
+  if (!id) return null
+  const pokemonId = typeof id === 'string' ? id : String(id)
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
 }
 
 export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProps) {
   const navigate = useNavigate()
-  
-  // If we have a pokemonItem but not full pokemon data, fetch it
-  const pokemonId = pokemon?.id || (pokemonItem ? extractIdFromUrl(pokemonItem.url) : null)
-  const { data: fetchedPokemon, isLoading } = usePokemon(
-    pokemonId || '',
-  )
 
-  const displayPokemon = pokemon || fetchedPokemon
-  const isLoadingData = !pokemon && !!pokemonItem && isLoading
-
-  if (!displayPokemon && !pokemonItem) {
+  if (!pokemonItem) {
     return null
   }
 
-  const pokemonName = displayPokemon?.name || pokemonItem?.name || ''
-  const pokemonIdDisplay = displayPokemon?.id || (pokemonItem ? extractIdFromUrl(pokemonItem.url) : '')
-  const imageUrl = displayPokemon ? getPokemonImage(displayPokemon) : null
+  const pokemonName = pokemon?.name || pokemonItem?.name || ''
+  const pokemonIdDisplay = pokemon?.id || (pokemonItem ? extractIdFromUrl(pokemonItem.url) : '')
+  const imageUrl = getPokemonImageUrl(pokemonIdDisplay)
 
   const handleClick = () => {
     if (pokemonIdDisplay) {
@@ -71,9 +58,7 @@ export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProp
     >
       {/* Pokemon Image */}
       <div className="relative w-full aspect-square mb-3 flex items-center justify-center">
-        {isLoadingData ? (
-          <div className="w-full h-full bg-blue-100 rounded-full animate-pulse" />
-        ) : imageUrl ? (
+        {imageUrl ? (
           <img
             src={imageUrl}
             alt={pokemonName}
