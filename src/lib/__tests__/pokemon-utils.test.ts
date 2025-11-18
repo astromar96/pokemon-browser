@@ -45,12 +45,12 @@ describe('getPokemonImageUrl', () => {
 })
 
 describe('getPokemonImageUrlFallback', () => {
-  it('should return fallback sprite URL for valid ID', () => {
+  it('should return fallback official-artwork URL for valid ID', () => {
     expect(getPokemonImageUrlFallback(1)).toBe(
-      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png'
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png'
     )
     expect(getPokemonImageUrlFallback('25')).toBe(
-      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png'
     )
   })
 

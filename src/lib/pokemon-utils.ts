@@ -13,12 +13,12 @@ export function getPokemonImageUrl(id: string | number | null | undefined): stri
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
 }
 
-// Get fallback Pokemon image URL (basic sprite - more reliable)
+// Get fallback Pokemon image URL (official-artwork - more reliable)
 export function getPokemonImageUrlFallback(id: string | number | null | undefined): string | null {
   if (!id) return null
   const pokemonId = typeof id === 'string' ? id : String(id)
-  // Use the basic sprite URL which is more reliable
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`
+  // Use the official-artwork URL which is more reliable
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
 }
 
 // Get Pokemon image URL from Pokemon object (preferred method)

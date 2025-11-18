@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import { getPokemonImageUrlFallback, formatPokemonId } from '@/lib/pokemon-utils'
+import { getPokemonImageUrl, formatPokemonId } from '@/lib/pokemon-utils'
 import type { Pokemon, PokemonListItem } from '@/api/pokemon'
 
 interface PokemonCardProps {
@@ -29,11 +29,8 @@ export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProp
 
   const pokemonName = pokemon?.name || pokemonItem?.name || ''
   const pokemonIdDisplay = pokemon?.id || (pokemonItem ? extractIdFromUrl(pokemonItem.url) : '')
-  // Try to use sprite from Pokemon object first (home, official artwork, then default), fallback to constructed URLs
-  const imageUrl = pokemon?.sprites?.other?.['home']?.front_default
-    || pokemon?.sprites?.other?.['official-artwork']?.front_default 
-    || pokemon?.sprites?.front_default
-    || (pokemonIdDisplay ? getPokemonImageUrlFallback(pokemonIdDisplay) : null)
+  // Use official-artwork URL pattern
+  const imageUrl = pokemonIdDisplay ? getPokemonImageUrl(pokemonIdDisplay) : null
 
   // Reset error state when image URL changes
   useEffect(() => {
