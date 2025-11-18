@@ -8,6 +8,7 @@ import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
 
 // Disable React Query cache when running in Cypress
 const isCypress = typeof window !== 'undefined' && (window as any).Cypress
+console.log('isCypress', isCypress)
 
 const queryClient = new QueryClient({
   defaultOptions: {
