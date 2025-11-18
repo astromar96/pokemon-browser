@@ -65,7 +65,7 @@ export async function fetchPokemonList(params?: {
   const limit = params?.limit ?? 10
   const offset = params?.offset ?? 0
   const url = `${BASE_URL}/pokemon?limit=${limit}&offset=${offset}`
-
+  await new Promise((resolve) => setTimeout(resolve, 1000))
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`Failed to fetch Pokemon list: ${response.statusText}`)
