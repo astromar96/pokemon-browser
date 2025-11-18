@@ -1,6 +1,6 @@
 import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
-import { fetchPokemonList, fetchPokemon } from './pokemon'
-import type { Pokemon, PokemonListResponse } from './pokemon'
+import { fetchPokemonList, fetchPokemon } from '@/api/pokemon'
+import type { Pokemon, PokemonListResponse } from '@/api/pokemon'
 
 // Hook for fetching a single Pokemon
 export function usePokemon(id: string | number) {

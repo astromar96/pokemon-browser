@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { ErrorBoundary } from './components/ErrorBoundary'
-import PokemonLayout from './pages/Pokemon/PokemonLayout'
-import PokemonPaginated from './pages/PokemonPaginated/PokemonPaginated'
-import PokemonInfinite from './pages/PokemonInfinite/PokemonInfinite'
-import PokemonDetail from './pages/PokemonDetail/PokemonDetail'
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
+import PokemonLayout from '@/pages/Pokemon/PokemonLayout'
+import PokemonPaginated from '@/pages/PokemonPaginated/PokemonPaginated'
+import PokemonInfinite from '@/pages/PokemonInfinite/PokemonInfinite'
+import PokemonDetail from '@/pages/PokemonDetail/PokemonDetail'
 
 function App() {
   return (

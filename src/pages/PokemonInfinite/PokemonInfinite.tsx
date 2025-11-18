@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { usePokemonInfiniteList } from '@/api/usePokemon'
-import { PokemonCard } from '@/components/PokemonCard'
-import { PokemonCardSkeleton } from '@/components/PokemonCardSkeleton'
+import { PokemonCard } from '@/components/shared/PokemonCard'
+import { PokemonCardSkeleton } from '@/components/shared/PokemonCardSkeleton'
 import { Button } from '@/components/ui/button'
 
 const ITEMS_PER_PAGE = 20
