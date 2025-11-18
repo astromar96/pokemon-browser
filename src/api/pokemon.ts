@@ -27,6 +27,9 @@ export interface Pokemon {
       'official-artwork': {
         front_default: string | null
       }
+      'home'?: {
+        front_default: string | null
+      }
     }
   }
   types: Array<{

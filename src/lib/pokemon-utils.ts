@@ -4,11 +4,29 @@ export function formatPokemonId(id: string | number): string {
   return `#${String(numId).padStart(3, '0')}`
 }
 
-// Get Pokemon image URL from ID
+// Get Pokemon image URL from ID (fallback when sprite URLs from API are not available)
 export function getPokemonImageUrl(id: string | number | null | undefined): string | null {
   if (!id) return null
   const pokemonId = typeof id === 'string' ? id : String(id)
+  // Use the basic sprite URL format which is more reliable
+  // Try official-artwork first, then fallback to basic sprite
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
+}
+
+// Get fallback Pokemon image URL (basic sprite - more reliable)
+export function getPokemonImageUrlFallback(id: string | number | null | undefined): string | null {
+  if (!id) return null
+  const pokemonId = typeof id === 'string' ? id : String(id)
+  // Use the basic sprite URL which is more reliable
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`
+}
+
+// Get Pokemon image URL from Pokemon object (preferred method)
+export function getPokemonImageUrlFromPokemon(pokemon: { sprites?: { other?: { 'official-artwork'?: { front_default?: string | null } } } } | null | undefined): string | null {
+  if (!pokemon?.sprites?.other?.['official-artwork']?.front_default) {
+    return null
+  }
+  return pokemon.sprites.other['official-artwork'].front_default
 }
 
 // Format stat name for display

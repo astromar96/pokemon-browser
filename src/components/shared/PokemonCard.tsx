@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { getPokemonImageUrlFallback, formatPokemonId } from '@/lib/pokemon-utils'
 import type { Pokemon, PokemonListItem } from '@/api/pokemon'
 
 interface PokemonCardProps {
@@ -11,21 +12,11 @@ interface PokemonCardProps {
 
 // Extract Pokemon ID from URL
 function extractIdFromUrl(url: string): string {
-  const parts = url.split('/')
-  return parts[parts.length - 2] || ''
-}
-
-// Format Pokemon ID with leading zeros
-function formatPokemonId(id: string | number): string {
-  const numId = typeof id === 'string' ? parseInt(id, 10) : id
-  return `#${String(numId).padStart(3, '0')}`
-}
-
-// Get Pokemon image URL from ID
-function getPokemonImageUrl(id: string | number | null | undefined): string | null {
-  if (!id) return null
-  const pokemonId = typeof id === 'string' ? id : String(id)
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
+  if (!url) return ''
+  const parts = url.split('/').filter(Boolean)
+  const id = parts[parts.length - 1] || ''
+  // Ensure it's a valid number
+  return isNaN(Number(id)) ? '' : id
 }
 
 export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProps) {
@@ -38,7 +29,11 @@ export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProp
 
   const pokemonName = pokemon?.name || pokemonItem?.name || ''
   const pokemonIdDisplay = pokemon?.id || (pokemonItem ? extractIdFromUrl(pokemonItem.url) : '')
-  const imageUrl = getPokemonImageUrl(pokemonIdDisplay)
+  // Try to use sprite from Pokemon object first (home, official artwork, then default), fallback to constructed URLs
+  const imageUrl = pokemon?.sprites?.other?.['home']?.front_default
+    || pokemon?.sprites?.other?.['official-artwork']?.front_default 
+    || pokemon?.sprites?.front_default
+    || (pokemonIdDisplay ? getPokemonImageUrlFallback(pokemonIdDisplay) : null)
 
   // Reset error state when image URL changes
   useEffect(() => {
@@ -76,10 +71,15 @@ export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProp
             className="w-full h-full object-contain"
             loading="lazy"
             onError={handleImageError}
+            onLoad={() => setImageError(false)}
           />
-        ) : (
+        ) : imageError ? (
           <div className="w-full h-full bg-blue-100 rounded-full flex items-center justify-center">
             <span className="text-blue-400 text-sm">No image</span>
+          </div>
+        ) : (
+          <div className="w-full h-full bg-blue-100 rounded-full flex items-center justify-center animate-pulse">
+            <span className="text-blue-300 text-sm">Loading...</span>
           </div>
         )}
       </div>
@@ -90,9 +90,11 @@ export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProp
       </h3>
 
       {/* Pokemon Number */}
-      <p className="text-sm text-gray-600 font-medium">
-        {formatPokemonId(pokemonIdDisplay)}
-      </p>
+      {pokemonIdDisplay && (
+        <p className="text-sm text-gray-600 font-medium">
+          {formatPokemonId(pokemonIdDisplay)}
+        </p>
+      )}
     </div>
   )
 }

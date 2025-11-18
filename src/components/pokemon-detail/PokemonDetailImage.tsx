@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getPokemonImageUrl } from '@/lib/pokemon-utils'
+import { getPokemonImageUrlFallback } from '@/lib/pokemon-utils'
 import type { Pokemon } from '@/api/pokemon'
 
 interface PokemonDetailImageProps {
@@ -8,7 +8,11 @@ interface PokemonDetailImageProps {
 
 export function PokemonDetailImage({ pokemon }: PokemonDetailImageProps) {
   const [imageError, setImageError] = useState(false)
-  const imageUrl = getPokemonImageUrl(pokemon.id)
+  // Use sprite from Pokemon object first (home, official artwork, then default), fallback to constructed URL
+  const imageUrl = pokemon.sprites?.other?.['home']?.front_default
+    || pokemon.sprites?.other?.['official-artwork']?.front_default 
+    || pokemon.sprites?.front_default
+    || getPokemonImageUrlFallback(pokemon.id)
 
   useEffect(() => {
     setImageError(false)
@@ -26,9 +30,12 @@ export function PokemonDetailImage({ pokemon }: PokemonDetailImageProps) {
           alt={pokemon.name}
           className="w-full h-full object-contain p-4"
           onError={handleImageError}
+          onLoad={() => setImageError(false)}
         />
-      ) : (
+      ) : imageError ? (
         <div className="text-gray-400">No image</div>
+      ) : (
+        <div className="text-gray-300 animate-pulse">Loading...</div>
       )}
     </div>
   )
