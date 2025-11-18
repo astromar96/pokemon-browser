@@ -1,8 +1,8 @@
 # GitHub Actions CI/CD Workflow
 # 
-# This workflow runs on every push and pull request to the master branch.
+# This workflow runs on every push and pull request to the main branch.
 # - For all events: Runs tests and builds the project
-# - For pushes to master: Also deploys to Netlify
+# - For pushes to main: Also deploys to Netlify
 #
 # Required GitHub Secrets:
 # - NETLIFY_AUTH_TOKEN: Your Netlify personal access token
@@ -21,10 +21,10 @@ name: CI/CD
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build-and-test:
@@ -59,7 +59,7 @@ jobs:
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout repository
