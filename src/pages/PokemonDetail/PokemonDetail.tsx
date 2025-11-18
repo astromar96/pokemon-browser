@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { usePokemon } from '@/api/usePokemon'
 import { Button } from '@/components/ui/button'
@@ -43,6 +44,15 @@ function PokemonDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: pokemon, isLoading, error } = usePokemon(id || '')
+  const [imageError, setImageError] = useState(false)
+
+  // Compute imageUrl early (will be null if pokemon is not available)
+  const imageUrl = pokemon ? getPokemonImageUrl(pokemon.id) : null
+
+  // Reset error state when image URL changes - must be before early returns
+  useEffect(() => {
+    setImageError(false)
+  }, [imageUrl])
 
   if (isLoading) {
     return (
@@ -192,10 +202,13 @@ function PokemonDetail() {
     )
   }
 
-  const imageUrl = getPokemonImageUrl(pokemon.id)
   const pokemonIdDisplay = formatPokemonId(pokemon.id)
   const heightInMeters = pokemon.height / 10 // Convert from decimeters to meters
   const weightInKg = pokemon.weight / 10 // Convert from hectograms to kg
+
+  const handleImageError = () => {
+    setImageError(true)
+  }
 
   // Get all stats in order
   const stats = [
@@ -265,11 +278,12 @@ function PokemonDetail() {
               <div className="flex flex-col items-center">
                 {/* Pokemon Image */}
                 <div className="w-64 h-64 rounded-full bg-gray-100 flex items-center justify-center mb-4 overflow-hidden">
-                  {imageUrl ? (
+                  {imageUrl && !imageError ? (
                     <img
                       src={imageUrl}
                       alt={pokemon.name}
                       className="w-full h-full object-contain p-4"
+                      onError={handleImageError}
                     />
                   ) : (
                     <div className="text-gray-400">No image</div>
@@ -359,7 +373,7 @@ function PokemonDetail() {
                 {/* Abilities */}
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-4">Abilities</h2>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {pokemon.abilities.map((ability) => (
                       <div key={ability.slot} className="flex items-center gap-2">
                         <span className="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm">

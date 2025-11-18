@@ -11,8 +11,8 @@ function App() {
       <Route path="/pokemon" element={<PokemonLayout />}>
         <Route path="paginated" element={<PokemonPaginated />} />
         <Route path="infinite" element={<PokemonInfinite />} />
-        <Route path=":id" element={<PokemonDetail />} />
       </Route>
+      <Route path="/pokemon/:id" element={<PokemonDetail />} />
     </Routes>
   )
 }
