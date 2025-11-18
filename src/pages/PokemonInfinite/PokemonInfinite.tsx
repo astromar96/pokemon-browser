@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import { usePokemonInfiniteList } from '@/api/usePokemon'
 import { PokemonCard } from '@/components/PokemonCard'
 import { PokemonCardSkeleton } from '@/components/PokemonCardSkeleton'
@@ -16,6 +16,9 @@ function PokemonInfinite() {
     isError,
     error,
   } = usePokemonInfiniteList(ITEMS_PER_PAGE)
+
+  // State to track scroll position for showing scroll to top button
+  const [showScrollToTop, setShowScrollToTop] = useState(false)
 
   // Ref for the sentinel element that triggers loading more
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -49,6 +52,25 @@ function PokemonInfinite() {
       }
     }
   }, [handleObserver])
+
+  // Handle scroll to show/hide scroll to top button
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop
+      setShowScrollToTop(scrollY > 300) // Show button after scrolling 300px
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  }
 
   // Flatten all pages into a single array
   const allPokemon = data?.pages.flatMap((page) => page.results) ?? []
@@ -106,6 +128,31 @@ function PokemonInfinite() {
               )}
             </div>
           </>
+        )}
+
+        {/* Scroll to Top Button */}
+        {showScrollToTop && (
+          <Button
+            onClick={scrollToTop}
+            className="fixed bottom-8 right-8 rounded-full h-12 w-12 p-0 shadow-lg z-50"
+            size="icon"
+            aria-label="Scroll to top"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="h-6 w-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4.5 15.75l7.5-7.5 7.5 7.5"
+              />
+            </svg>
+          </Button>
         )}
       </div>
     </div>
