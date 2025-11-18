@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import type { Pokemon, PokemonListItem } from '@/api/pokemon'
@@ -29,6 +30,7 @@ function getPokemonImageUrl(id: string | number | null | undefined): string | nu
 
 export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProps) {
   const navigate = useNavigate()
+  const [imageError, setImageError] = useState(false)
 
   if (!pokemonItem) {
     return null
@@ -38,10 +40,19 @@ export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProp
   const pokemonIdDisplay = pokemon?.id || (pokemonItem ? extractIdFromUrl(pokemonItem.url) : '')
   const imageUrl = getPokemonImageUrl(pokemonIdDisplay)
 
+  // Reset error state when image URL changes
+  useEffect(() => {
+    setImageError(false)
+  }, [imageUrl])
+
   const handleClick = () => {
     if (pokemonIdDisplay) {
       navigate(`/pokemon/${pokemonIdDisplay}`)
     }
+  }
+
+  const handleImageError = () => {
+    setImageError(true)
   }
 
   return (
@@ -58,12 +69,13 @@ export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProp
     >
       {/* Pokemon Image */}
       <div className="relative w-full aspect-square mb-3 flex items-center justify-center">
-        {imageUrl ? (
+        {imageUrl && !imageError ? (
           <img
             src={imageUrl}
             alt={pokemonName}
             className="w-full h-full object-contain"
             loading="lazy"
+            onError={handleImageError}
           />
         ) : (
           <div className="w-full h-full bg-blue-100 rounded-full flex items-center justify-center">
