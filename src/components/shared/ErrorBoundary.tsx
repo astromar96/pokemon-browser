@@ -1,4 +1,5 @@
-import { Component, ReactNode, ErrorInfo } from 'react'
+import { Component } from 'react'
+import type { ReactNode, ErrorInfo } from 'react'
 import { Button } from '@/components/ui/button'
 
 interface ErrorBoundaryProps {
@@ -79,7 +80,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <p className="text-gray-600 mb-6">
               We encountered an unexpected error. Please try again or reload the page.
             </p>
-            {this.state.error && process.env.NODE_ENV === 'development' && (
+            {this.state.error && import.meta.env.DEV && (
               <div className="mb-6 p-4 bg-red-50 rounded border border-red-200 text-left">
                 <p className="text-sm font-mono text-red-800 break-all">
                   {this.state.error.toString()}

@@ -22,17 +22,17 @@ describe('fetchPokemonList', () => {
       ],
     }
 
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       json: async () => mockResponse,
-    })
+    }))
 
     const promise = fetchPokemonList()
     vi.advanceTimersByTime(1000)
     const result = await promise
 
     expect(result).toEqual(mockResponse)
-    expect(global.fetch).toHaveBeenCalledWith('https://pokeapi.co/api/v2/pokemon?limit=10&offset=0')
+    expect(globalThis.fetch).toHaveBeenCalledWith('https://pokeapi.co/api/v2/pokemon?limit=10&offset=0')
   })
 
   it('should fetch Pokemon list with custom params', async () => {
@@ -45,24 +45,24 @@ describe('fetchPokemonList', () => {
       ],
     }
 
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       json: async () => mockResponse,
-    })
+    }))
 
     const promise = fetchPokemonList({ limit: 1, offset: 24 })
     vi.advanceTimersByTime(1000)
     const result = await promise
 
     expect(result).toEqual(mockResponse)
-    expect(global.fetch).toHaveBeenCalledWith('https://pokeapi.co/api/v2/pokemon?limit=1&offset=24')
+    expect(globalThis.fetch).toHaveBeenCalledWith('https://pokeapi.co/api/v2/pokemon?limit=1&offset=24')
   })
 
   it('should throw error when fetch fails', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: false,
       statusText: 'Not Found',
-    })
+    }))
 
     const promise = fetchPokemonList()
     vi.advanceTimersByTime(1000)
@@ -121,15 +121,15 @@ describe('fetchPokemon', () => {
       ],
     }
 
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       json: async () => mockPokemon,
-    })
+    }))
 
     const result = await fetchPokemon(25)
 
     expect(result).toEqual(mockPokemon)
-    expect(global.fetch).toHaveBeenCalledWith('https://pokeapi.co/api/v2/pokemon/25')
+    expect(globalThis.fetch).toHaveBeenCalledWith('https://pokeapi.co/api/v2/pokemon/25')
   })
 
   it('should fetch a single Pokemon by string ID', async () => {
@@ -155,22 +155,22 @@ describe('fetchPokemon', () => {
       abilities: [],
     }
 
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       json: async () => mockPokemon,
-    })
+    }))
 
     const result = await fetchPokemon('1')
 
     expect(result).toEqual(mockPokemon)
-    expect(global.fetch).toHaveBeenCalledWith('https://pokeapi.co/api/v2/pokemon/1')
+    expect(globalThis.fetch).toHaveBeenCalledWith('https://pokeapi.co/api/v2/pokemon/1')
   })
 
   it('should throw error when fetch fails', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: false,
       statusText: 'Not Found',
-    })
+    }))
 
     await expect(fetchPokemon(99999)).rejects.toThrow('Failed to fetch Pokemon: Not Found')
   })
