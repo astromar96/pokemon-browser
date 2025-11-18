@@ -52,6 +52,7 @@ export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProp
 
   return (
     <div
+      data-testid="pokemon-card"
       onClick={handleClick}
       className={cn(
         'group relative overflow-hidden rounded-lg',
@@ -85,7 +86,7 @@ export function PokemonCard({ pokemon, pokemonItem, className }: PokemonCardProp
       </div>
 
       {/* Pokemon Name */}
-      <h3 className="text-base font-bold text-gray-900 mb-1 uppercase tracking-wide">
+      <h3 data-testid="pokemon-name" className="text-base font-bold text-gray-900 mb-1 uppercase tracking-wide">
         {pokemonName}
       </h3>
 

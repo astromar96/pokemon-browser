@@ -1,6 +1,6 @@
 export function PokemonCardSkeleton() {
   return (
-    <div className="group relative overflow-hidden rounded-lg bg-gradient-to-br from-blue-50 via-purple-50 to-white shadow-md flex flex-col items-center justify-center p-4 animate-pulse">
+    <div data-testid="pokemon-card-skeleton" className="group relative overflow-hidden rounded-lg bg-gradient-to-br from-blue-50 via-purple-50 to-white shadow-md flex flex-col items-center justify-center p-4 animate-pulse">
       {/* Pokemon Image Skeleton */}
       <div className="relative w-full aspect-square mb-3 flex items-center justify-center">
         <div className="w-full h-full bg-blue-200 rounded-full" />
