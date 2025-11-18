@@ -1,4 +1,4 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { fetchPokemonList, fetchPokemon } from './pokemon'
 import type { Pokemon, PokemonListResponse } from './pokemon'
 
@@ -14,6 +14,14 @@ export function usePokemon(id: string | number) {
 // Hook for fetching paginated Pokemon list
 export function usePokemonList(params?: { limit?: number; offset?: number }) {
   return useQuery<PokemonListResponse>({
+    queryKey: ['pokemon-list', params],
+    queryFn: () => fetchPokemonList(params),
+  })
+}
+
+// Hook for fetching paginated Pokemon list with Suspense
+export function usePokemonListSuspense(params?: { limit?: number; offset?: number }) {
+  return useSuspenseQuery<PokemonListResponse>({
     queryKey: ['pokemon-list', params],
     queryFn: () => fetchPokemonList(params),
   })

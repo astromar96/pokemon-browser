@@ -1,16 +1,69 @@
-import { useState, useRef, useEffect } from 'react'
-import { usePokemonList } from '@/api/usePokemon'
+import { useState, useRef, useEffect, Suspense, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { usePokemonList, usePokemonListSuspense } from '@/api/usePokemon'
 import { PokemonCard } from '@/components/PokemonCard'
+import { PokemonCardSkeleton } from '@/components/PokemonCardSkeleton'
 import { Button } from '@/components/ui/button'
 
 const ITEMS_PER_PAGE = 10
 
-function PokemonPaginated() {
-  const [currentPage, setCurrentPage] = useState(0)
+// Component that uses the hook and can be wrapped in Suspense
+function PokemonGrid({ currentPage }: { currentPage: number }) {
   const offset = currentPage * ITEMS_PER_PAGE
+  const queryParams = useMemo(() => ({
+    limit: ITEMS_PER_PAGE,
+    offset,
+  }), [offset])
+  
+  const { data } = usePokemonListSuspense(queryParams)
+
+  if (!data.results) {
+    return null
+  }
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
+      {data.results.map((pokemon) => (
+        <PokemonCard key={pokemon.name} pokemonItem={pokemon} />
+      ))}
+    </div>
+  )
+}
+
+// Skeleton fallback component
+function PokemonGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
+      {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+        <PokemonCardSkeleton key={i} />
+      ))}
+    </div>
+  )
+}
+
+function PokemonPaginated() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const lastCountRef = useRef<number>(0)
 
-  const { data, isLoading, error, isFetching } = usePokemonList({
+  // Read page from URL (1-based), default to 1 if not present or invalid
+  const pageFromUrl = parseInt(searchParams.get('page') || '1', 10)
+  const initialPage = pageFromUrl > 0 ? pageFromUrl - 1 : 0 // Convert to 0-based
+  const [currentPage, setCurrentPage] = useState(initialPage)
+
+  // Sync state with URL when URL changes (e.g., browser back/forward)
+  useEffect(() => {
+    const urlPage = parseInt(searchParams.get('page') || '1', 10)
+    const urlPageZeroBased = urlPage > 0 ? urlPage - 1 : 0
+    if (urlPageZeroBased !== currentPage) {
+      setCurrentPage(urlPageZeroBased)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  const offset = currentPage * ITEMS_PER_PAGE
+
+  // Use a non-suspense query to get the count for pagination
+  const { data, error, isFetching, isLoading } = usePokemonList({
     limit: ITEMS_PER_PAGE,
     offset,
   })
@@ -20,17 +73,30 @@ function PokemonPaginated() {
     if (data?.count) {
       lastCountRef.current = data.count
     }
-  }, [data?.count])
+  }, [data])
+
+  // Update URL when page changes
+  const updatePage = (page: number) => {
+    setCurrentPage(page)
+    // Update URL with 1-based page number
+    const newSearchParams = new URLSearchParams(searchParams)
+    if (page === 0) {
+      newSearchParams.delete('page')
+    } else {
+      newSearchParams.set('page', String(page + 1))
+    }
+    setSearchParams(newSearchParams, { replace: true })
+  }
 
   const handlePrevious = () => {
     if (currentPage > 0) {
-      setCurrentPage((prev) => prev - 1)
+      updatePage(currentPage - 1)
     }
   }
 
   const handleNext = () => {
     if (data?.next) {
-      setCurrentPage((prev) => prev + 1)
+      updatePage(currentPage + 1)
     }
   }
 
@@ -40,7 +106,7 @@ function PokemonPaginated() {
   const currentPageNumber = currentPage + 1
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page)
+    updatePage(page)
   }
 
   // Generate page numbers to display
@@ -107,23 +173,14 @@ function PokemonPaginated() {
   return (
     <div className="w-full flex justify-center">
       <div className="w-full max-w-7xl px-4 py-4">
-        {/* Pokemon Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-              <div
-                key={i}
-                className="rounded-xl bg-slate-100 border border-slate-200 p-6 min-h-[240px] animate-pulse"
-              />
-            ))}
-          </div>
-        ) : data?.results ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
-            {data.results.map((pokemon) => (
-              <PokemonCard key={pokemon.name} pokemonItem={pokemon} />
-            ))}
-          </div>
-        ) : null}
+        {/* Pokemon Grid with Suspense */}
+        {isLoading || (isFetching && !data?.results) ? (
+          <PokemonGridSkeleton />
+        ) : (
+          <Suspense key={`${currentPage}-${offset}`} fallback={<PokemonGridSkeleton />}>
+            <PokemonGrid currentPage={currentPage} />
+          </Suspense>
+        )}
 
         {/* Pagination Controls */}
         <div className="flex items-center justify-center gap-2 flex-wrap mt-8">
@@ -177,7 +234,7 @@ function PokemonPaginated() {
         {/* Pagination Info */}
         <div className="flex items-center justify-center text-muted-foreground mt-6">
           <div className="text-sm font-medium">
-            Page {currentPageNumber} of {totalPages || 1} {data?.results ? `(${data.results.length} Pokemon shown)` : isLoading ? '(Loading...)' : ''}
+            Page {currentPageNumber} of {totalPages || 1} {data?.results ? `(${data.results.length} Pokemon shown)` : isFetching ? '(Loading...)' : ''}
           </div>
         </div>
       </div>
