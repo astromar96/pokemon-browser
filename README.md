@@ -35,11 +35,12 @@ This project is a **responsive Pokemon browser** built with **React + TypeScript
 
 **Load More View** (`/pokemon/infinite`)
 - ✅ Grid view of Pokemon cards (name + sprite)
-- ✅ Infinite scroll implementation using Intersection Observer API
-- ⚠️ **Note**: Currently uses automatic infinite scroll instead of a "Load More" button (see [Implementation Notes](#-implementation-notes))
+- ✅ Load More button implementation for manual pagination
 - ✅ Avoids duplicates and state conflicts
-- ✅ Loading indicators for next batch
-- ✅ End-of-list indicator
+- ✅ Loading indicators for next batch (skeleton loaders)
+- ✅ Progress indicator showing current count vs total
+- ✅ End-of-list indicator when all Pokemon are loaded
+- ✅ Scroll to top button for better navigation
 
 #### 2. Detail Page (`/pokemon/:id`)
 
@@ -277,6 +278,8 @@ The project is configured for Netlify deployment with:
 2. Deploy the `dist` directory to Netlify
 3. Configure redirects (already in `netlify.toml`)
 
+⚠️ **Note**: There is currently an issue with the CI/CD automated deployment to Netlify via GitHub Actions. Manual deployment is recommended until the issue is resolved. The CI workflow (`.github/workflows/ci.yml`) is configured but may require troubleshooting of Netlify authentication tokens or site configuration.
+
 ### Other Platforms
 The built application in the `dist` directory can be deployed to any static hosting service:
 - **Vercel** - Zero-config deployment
@@ -316,8 +319,7 @@ The built application in the `dist` directory can be deployed to any static host
 1. **Code Splitting**: Route-based code splitting with React.lazy
 2. **Image Optimization**: Lazy loading with native `loading="lazy"` attribute
 3. **Query Caching**: React Query caches API responses automatically
-4. **Intersection Observer**: Efficient infinite scroll implementation
-5. **Memoization**: Strategic use of React.memo and useMemo where beneficial
+4. **Memoization**: Strategic use of React.memo and useMemo where beneficial
 
 ### Error Handling
 - **Error Boundaries**: Catches React component errors gracefully
@@ -335,22 +337,23 @@ The built application in the `dist` directory can be deployed to any static host
 
 ### Load More View Implementation
 
-The "Load More" view currently uses **automatic infinite scroll** via the Intersection Observer API instead of a manual "Load More" button. This provides a smoother user experience with automatic loading as the user scrolls.
+The "Load More" view uses a **button-based approach** that allows users to manually load more Pokemon. The implementation includes:
 
-**To convert to a button-based approach** (if required):
-1. Replace the Intersection Observer logic in `PokemonInfinite.tsx`
-2. Add a "Load More" button that calls `fetchNextPage()` on click
-3. Disable the button when `isFetchingNextPage` is true
-4. Hide the button when `hasNextPage` is false
+- ✅ **Load More Button**: Calls `fetchNextPage()` when clicked
+- ✅ **Loading State**: Button shows "Loading..." and is disabled while fetching
+- ✅ **End Detection**: Button is hidden when all Pokemon have been loaded
+- ✅ **Progress Indicator**: Shows current count vs total Pokemon count
+- ✅ **Scroll to Top**: Floating button appears after scrolling down 300px
+- ✅ **Skeleton Loading**: Shows loading skeletons for the next batch while fetching
 
-The current implementation is more user-friendly but can be easily modified to match the exact requirement.
+The button-based approach gives users explicit control over when to load more content, which can be more accessible and predictable than automatic infinite scroll.
 
 ## ✅ Submission Checklist
 
 - ✅ Pixel-perfect layout matching reference designs
 - ✅ Fully responsive across desktop, tablet, and mobile
 - ✅ Pagination view implemented with controls
-- ✅ Load More view implemented (infinite scroll variant)
+- ✅ Load More view implemented (button-based pagination)
 - ✅ Dedicated detail page functional and styled
 - ✅ Loading and error states handled properly
 - ✅ Code is modular and easy to test
