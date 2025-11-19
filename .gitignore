@@ -27,3 +27,6 @@ dist-ssr
 cypress/videos
 cypress/screenshots
 .cypress
+
+# Local Netlify folder
+.netlify
