@@ -54,7 +54,7 @@ describe('Pokemon List Pages', () => {
     cy.contains('Page 1 of 131 (10 Pokemon shown)').should('exist')
   })
 
-  it('loads more Pokemon in infinite scroll and exposes scroll-to-top', () => {
+  it('loads more Pokemon using Load More button and exposes scroll-to-top', () => {
     cy.visit('/pokemon/infinite')
     cy.wait('@pokemonList')
     cy.waitForPokemonList()
@@ -67,7 +67,17 @@ describe('Pokemon List Pages', () => {
       expect(initialCount).to.be.greaterThan(0)
       cy.get('button[aria-label="Scroll to top"]').should('not.exist')
 
-      cy.scrollTo('bottom')
+      // Verify Load More button is visible and enabled
+      cy.get('[data-testid="load-more-button"]').should('be.visible').and('not.be.disabled')
+      cy.get('[data-testid="load-more-button"]').should('contain.text', 'Load More')
+
+      // Click Load More button
+      cy.get('[data-testid="load-more-button"]').click()
+
+      // Verify button is disabled while loading
+      cy.get('[data-testid="load-more-button"]').should('be.disabled')
+      cy.get('[data-testid="load-more-button"]').should('contain.text', 'Loading...')
+
       cy.wait('@pokemonList').then((interception) => {
         const url = new URL(interception.request.url)
         expect(url.searchParams.get('offset')).to.equal('10')
@@ -76,6 +86,10 @@ describe('Pokemon List Pages', () => {
 
       cy.get('[data-testid="pokemon-card"]').should('have.length.greaterThan', initialCount)
       cy.contains('Showing 20 of 1302 Pokemon').should('exist')
+
+      // Verify button is enabled again after loading
+      cy.get('[data-testid="load-more-button"]').should('not.be.disabled')
+      cy.get('[data-testid="load-more-button"]').should('contain.text', 'Load More')
 
       // Force scroll event to show scroll-to-top control
       cy.window().then((win) => {

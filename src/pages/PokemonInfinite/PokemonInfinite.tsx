@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePokemonInfiniteList } from '@/api/usePokemon'
 import { PokemonCard } from '@/components/shared/PokemonCard'
 import { PokemonCardSkeleton } from '@/components/shared/PokemonCardSkeleton'
@@ -19,39 +19,6 @@ function PokemonInfinite() {
 
   // State to track scroll position for showing scroll to top button
   const [showScrollToTop, setShowScrollToTop] = useState(false)
-
-  // Ref for the sentinel element that triggers loading more
-  const loadMoreRef = useRef<HTMLDivElement>(null)
-
-  // Intersection Observer callback
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const [target] = entries
-      if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage()
-      }
-    },
-    [hasNextPage, isFetchingNextPage, fetchNextPage]
-  )
-
-  // Set up Intersection Observer
-  useEffect(() => {
-    const element = loadMoreRef.current
-    if (!element) return
-
-    const observer = new IntersectionObserver(handleObserver, {
-      threshold: 0.1,
-      rootMargin: '300px', // approximately item height
-    })
-
-    observer.observe(element)
-
-    return () => {
-      if (element) {
-        observer.unobserve(element)
-      }
-    }
-  }, [handleObserver])
 
   // Handle scroll to show/hide scroll to top button
   useEffect(() => {
@@ -115,18 +82,29 @@ function PokemonInfinite() {
               </div>
             )}
 
-            {/*  */}
-            <p className="text-muted-foreground text-sm text-center">
-                Showing {allPokemon.length} of {totalCount} Pokemon
+            <p className="text-muted-foreground text-sm text-center mb-4">
+              Showing {allPokemon.length} of {totalCount} Pokemon
             </p>
-            {/* Sentinel element for infinite scroll */}
-            <div ref={loadMoreRef} className="w-full h-20 flex items-center justify-center">
-              {!hasNextPage && allPokemon.length > 0 && (
-                <p className="text-muted-foreground text-center py-8">
-                  You've reached the end! All {totalCount} Pokemon have been loaded.
-                </p>
-              )}
-            </div>
+
+            {/* Load More Button */}
+            {hasNextPage && (
+              <div className="w-full flex items-center justify-center mb-6">
+                <Button
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  data-testid="load-more-button"
+                >
+                  {isFetchingNextPage ? 'Loading...' : 'Load More'}
+                </Button>
+              </div>
+            )}
+
+            {/* End message */}
+            {!hasNextPage && allPokemon.length > 0 && (
+              <p className="text-muted-foreground text-center py-8">
+                You've reached the end! All {totalCount} Pokemon have been loaded.
+              </p>
+            )}
           </>
         )}
 
